@@ -30,12 +30,18 @@ def registro(request):
     return render(request, 'reservas/registro.html', {'form': form})
 
 @login_required
+@login_required
 def comprar_bono(request):
     if request.method == 'POST':
-        user = request.user
-        user.creditos += 10
-        user.save()
-        return redirect('home')
+        # Obtenemos la cantidad de créditos del botón que pulsó el usuario
+        cantidad = int(request.POST.get('cantidad', 0))
+        if cantidad > 0:
+            user = request.user
+            user.creditos += cantidad
+            user.save()
+            messages.success(request, f"¡Has recargado {cantidad} créditos con éxito!")
+            return redirect('home')
+            
     return render(request, 'reservas/comprar_bono.html')
 
 # --- NUEVA FUNCIÓN PARA EL REQUISITO 20 ---

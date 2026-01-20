@@ -25,4 +25,6 @@ urlpatterns = [
     path('registro/', views.registro, name='registro'),
     path('login/', auth_views.LoginView.as_view(template_name='reservas/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('reservar/<int:pista_id>/', views.reservar_pista, name='reservar_pista'),
+    path('comprar-bono/', views.comprar_bono, name='comprar_bono'),
 ]

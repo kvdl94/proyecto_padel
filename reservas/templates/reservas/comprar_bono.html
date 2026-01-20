@@ -1,0 +1,29 @@
+{% extends 'reservas/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow-lg border-0 rounded-3 mt-5">
+            <div class="card-header bg-success text-white text-center py-3">
+                <h3 class="mb-0">Recargar Créditos</h3>
+            </div>
+            <div class="card-body p-4 text-center">
+                <p class="lead">Consigue un bono de <strong>10 créditos</strong> para tus próximas reservas en CUPRA Padel.</p>
+                <div class="display-5 fw-bold text-success mb-4">10.00€</div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success btn-lg w-100 shadow-sm">
+                        Confirmar Pago Simulado
+                    </button>
+                </form>
+                
+                <a href="{% url 'home' %}" class="btn btn-link mt-3 text-muted">Cancelar y volver</a>
+            </div>
+            <div class="card-footer bg-light text-center small py-3">
+                Al confirmar, se añadirán 10 créditos a tu cuenta de usuario.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -8,7 +8,11 @@ class Usuario(AbstractUser):
 
 class Pista(models.Model):
     nombre = models.CharField(max_length=100)
+    imagen_url = models.URLField(max_length=500, blank=True, null=True, help_text="Pega aquí el enlace de una foto de una pista de pádel")
     activa = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.nombre
 
     def __str__(self):
         return self.nombre

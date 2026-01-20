@@ -3,25 +3,89 @@
 {% block content %}
 <div class="text-center mb-5">
     <h1 class="display-4 fw-bold">Bienvenido a CUPRA Padel</h1>
-    <p class="lead">Reserva tu pista y empieza a jugar.</p>
+    <p class="lead text-muted">Reserva tu pista y empieza a jugar en las mejores instalaciones.</p>
 </div>
 
 <div class="row">
+    <div class="col-12 mb-3">
+        <h2 class="h4 fw-bold">Pistas Disponibles</h2>
+    </div>
     {% for pista in pistas %}
     <div class="col-md-4 mb-4">
-        <div class="card shadow border-0 h-100">
+        <div class="card shadow-sm border-0 h-100 overflow-hidden">
+            {% if pista.imagen_url %}
+                <img src="{{ pista.imagen_url }}" class="card-img-top" alt="{{ pista.nombre }}" style="height: 200px; object-fit: cover;">
+            {% else %}
+                <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <div class="text-center">
+                        <i class="bi bi-image" style="font-size: 2rem;"></i>
+                        <p class="mb-0">Sin foto disponible</p>
+                    </div>
+                </div>
+            {% endif %}
+
             <div class="card-body text-center">
-                <h3 class="card-title">{{ pista.nombre }}</h3>
-                <p class="badge bg-success">Disponible</p>
+                <h3 class="card-title h5 fw-bold">{{ pista.nombre }}</h3>
+                <p class="badge bg-success mb-3">Disponible</p>
                 <hr>
-                <a href="#" class="btn btn-dark w-100">Reservar ahora</a>
+                <a href="{% url 'reservar_pista' pista.id %}" class="btn btn-dark w-100">Reservar ahora</a>
             </div>
         </div>
     </div>
     {% empty %}
     <div class="col-12 text-center">
-        <p class="alert alert-warning">No hay pistas disponibles en este momento.</p>
+        <div class="alert alert-warning py-4">
+            <i class="bi bi-exclamation-triangle-fill"></i> No hay pistas configuradas en el panel de administración.
+        </div>
     </div>
     {% endfor %}
+</div>
+
+<hr class="my-5">
+
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="d-flex align-items-center mb-4">
+            <h2 class="h4 fw-bold mb-0">Mis Próximas Reservas</h2>
+        </div>
+
+        {% if user.is_authenticated %}
+            {% if reservas %}
+                <div class="table-responsive shadow-sm rounded-3">
+                    <table class="table table-hover align-middle bg-white mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th class="ps-3">Pista</th>
+                                <th>Fecha</th>
+                                <th>Horario</th>
+                                <th class="text-center">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in reservas %}
+                            <tr>
+                                <td class="ps-3 fw-bold">{{ r.pista.nombre }}</td>
+                                <td>{{ r.fecha|date:"d/m/Y" }}</td>
+                                <td>{{ r.bloque }}</td>
+                                <td class="text-center">
+                                    <span class="badge rounded-pill bg-info text-dark">Confirmada</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="card border-0 bg-light text-center py-5">
+                    <p class="text-muted mb-0">Aún no tienes reservas activas.</p>
+                    <small>Selecciona una pista arriba para realizar tu primer partido.</small>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-secondary text-center">
+                <a href="{% url 'login' %}" class="fw-bold">Inicia sesión</a> para ver tu historial de reservas.
+            </div>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

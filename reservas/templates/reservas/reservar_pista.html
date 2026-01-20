@@ -1,0 +1,61 @@
+{% extends 'reservas/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-lg border-0 rounded-3">
+            <div class="card-header bg-dark text-white text-center py-3">
+                <h3 class="mb-0">Reservar {{ pista.nombre }}</h3>
+            </div>
+            <div class="card-body p-4">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <p class="text-muted text-center mb-4">Selecciona el horario para tu partida. Cada reserva consume <strong>1 crédito</strong>.</p>
+
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label for="fecha" class="form-label fw-bold">Fecha del partido</label>
+                        <input type="date" name="fecha" id="fecha" class="form-control form-control-lg" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="bloque" class="form-label fw-bold">Horario disponible</label>
+                        <select name="bloque" id="bloque" class="form-select form-select-lg" required>
+                            <option value="" selected disabled>Selecciona una hora...</option>
+                            <option value="09:00">09:00 - 10:30</option>
+                            <option value="10:30">10:30 - 12:00</option>
+                            <option value="12:00">12:00 - 13:30</option>
+                            <option value="17:00">17:00 - 18:30</option>
+                            <option value="18:30">18:30 - 20:00</option>
+                            <option value="20:00">20:00 - 21:30</option>
+                        </select>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg shadow-sm">
+                            Confirmar Reserva
+                        </button>
+                        <a href="{% url 'home' %}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center bg-light small py-3">
+                Tu saldo actual: <strong>{{ user.creditos }} créditos</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('fecha').min = new Date().toISOString().split("T")[0];
+</script>
+{% endblock %}

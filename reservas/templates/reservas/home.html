@@ -1,0 +1,27 @@
+{% extends 'reservas/base.html' %}
+
+{% block content %}
+<div class="text-center mb-5">
+    <h1 class="display-4 fw-bold">Bienvenido a CUPRA Padel</h1>
+    <p class="lead">Reserva tu pista y empieza a jugar.</p>
+</div>
+
+<div class="row">
+    {% for pista in pistas %}
+    <div class="col-md-4 mb-4">
+        <div class="card shadow border-0 h-100">
+            <div class="card-body text-center">
+                <h3 class="card-title">{{ pista.nombre }}</h3>
+                <p class="badge bg-success">Disponible</p>
+                <hr>
+                <a href="#" class="btn btn-dark w-100">Reservar ahora</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center">
+        <p class="alert alert-warning">No hay pistas disponibles en este momento.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

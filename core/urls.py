@@ -27,4 +27,5 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('reservar/<int:pista_id>/', views.reservar_pista, name='reservar_pista'),
     path('comprar-bono/', views.comprar_bono, name='comprar_bono'),
+    path('anular/<int:reserva_id>/', views.anular_reserva, name='anular_reserva'),
 ]

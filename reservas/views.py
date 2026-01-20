@@ -1,9 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages  # Para mostrar errores si la pista está ocupada
 from .forms import RegistroForm
+from datetime import date
 from .models import Usuario, Pista, Reserva # Añadimos Reserva aquí
+from django.contrib.auth import login
 
 def home(request):
     pistas = Pista.objects.filter(activa=True)
@@ -24,6 +26,8 @@ def registro(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
+            # Notificación visual para el usuario
+            messages.success(request, f"¡Bienvenido {user.username}! Tu cuenta ha sido creada con éxito.") 
             return redirect('home')
     else:
         form = RegistroForm()
@@ -44,15 +48,20 @@ def comprar_bono(request):
             
     return render(request, 'reservas/comprar_bono.html')
 
-# --- NUEVA FUNCIÓN PARA EL REQUISITO 20 ---
 @login_required
 def reservar_pista(request, pista_id):
-    pista = Pista.objects.get(id=pista_id)
+    # Usamos get_object_or_404 para evitar errores si la pista no existe
+    pista = get_object_or_404(Pista, id=pista_id)
     
     if request.method == 'POST':
         fecha = request.POST.get('fecha')
         bloque = request.POST.get('bloque')
         user = request.user
+
+        # Requisito 24: No permitir reservar en el pasado
+        if fecha < str(date.today()):
+            messages.error(request, "No puedes reservar en una fecha que ya ha pasado.")
+            return redirect('home')
 
         # Requisito 21: Validar si tiene saldo
         if user.creditos < 1:
@@ -63,14 +72,26 @@ def reservar_pista(request, pista_id):
         existe = Reserva.objects.filter(pista=pista, fecha=fecha, bloque=bloque).exists()
         
         if existe:
-            # Si ya existe, enviamos error y no guardamos
             messages.error(request, "Esta pista ya está reservada para ese día y hora.")
         else:
             # Si está libre, creamos la reserva y restamos 1 crédito
             Reserva.objects.create(usuario=user, pista=pista, fecha=fecha, bloque=bloque)
             user.creditos -= 1
             user.save()
-            messages.success(request, "¡Reserva confirmada!")
+            messages.success(request, f"¡Reserva en {pista.nombre} confirmada!")
             return redirect('home')
 
     return render(request, 'reservas/reservar_pista.html', {'pista': pista})
+
+@login_required
+def anular_reserva(request, reserva_id):
+    reserva = get_object_or_404(Reserva, id=reserva_id, usuario=request.user)
+    
+    # Devolvemos el crédito al usuario (Requisito 21)
+    user = request.user
+    user.creditos += 1
+    user.save()
+    
+    reserva.delete()
+    messages.success(request, "Reserva anulada. Se ha devuelto 1 crédito a tu saldo.")
+    return redirect('home')

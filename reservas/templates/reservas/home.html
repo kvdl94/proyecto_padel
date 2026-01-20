@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="text-center mb-5">
-    <h1 class="display-4 fw-bold">Bienvenido a WANDA Padel</h1>
+    <h1 class="display-4 fw-bold">Bienvenido a CUPRA Padel</h1>
     <p class="lead text-muted">Reserva tu pista y empieza a jugar en las mejores instalaciones.</p>
 </div>
 
@@ -58,7 +58,7 @@
                                 <th class="ps-3">Pista</th>
                                 <th>Fecha</th>
                                 <th>Horario</th>
-                                <th class="text-center">Estado</th>
+                                <th class="text-center">Estado y Acciones</th> 
                             </tr>
                         </thead>
                         <tbody>
@@ -68,7 +68,12 @@
                                 <td>{{ r.fecha|date:"d/m/Y" }}</td>
                                 <td>{{ r.bloque }}</td>
                                 <td class="text-center">
-                                    <span class="badge rounded-pill bg-info text-dark">Confirmada</span>
+                                    <span class="badge rounded-pill bg-info text-dark mb-2 d-inline-block">Confirmada</span>
+                                    
+                                    <br class="d-md-none"> <form action="{% url 'anular_reserva' r.id %}" method="post" onsubmit="return confirm('¿Seguro que quieres anular esta reserva? Se te devolverá el crédito.');" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-danger btn-sm ms-md-2">Anular</button>
+                                    </form>
                                 </td>
                             </tr>
                             {% endfor %}

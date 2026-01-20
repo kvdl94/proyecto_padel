@@ -80,4 +80,19 @@ Bash
 python manage.py runserver
 Luego, abre tu navegador en: http://127.0.0.1:8000/
 
+👥 Usuarios de Prueba 
+Para facilitar la corrección del proyecto, se han configurado los siguientes perfiles con roles diferenciados:
 
+1. Administrador (Gestión de pistas y bonos)
+Usuario: alumno
+
+Contraseña: alumno 
+
+Acceso: Puede entrar en /admin para activar/desactivar pistas y ver todas las reservas.
+
+2. Usuario Cliente (Reserva y anulación)
+Usuario: alumno
+
+Contraseña: alumno
+
+Acceso: Web principal. Permite probar la compra de bonos, reserva de pistas y el historial.

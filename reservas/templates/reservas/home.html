@@ -26,9 +26,22 @@
 
             <div class="card-body text-center">
                 <h3 class="card-title h5 fw-bold">{{ pista.nombre }}</h3>
-                <p class="badge bg-success mb-3">Disponible</p>
+                
+                {% if not pista.activa %}
+                    <p class="badge bg-secondary mb-3">Mantenimiento</p>
+                {% elif pista.esta_llena_hoy %}
+                    <p class="badge bg-danger mb-3">Completa hoy</p>
+                {% else %}
+                    <p class="badge bg-success mb-3">Disponible</p>
+                {% endif %}
+                
                 <hr>
-                <a href="{% url 'reservar_pista' pista.id %}" class="btn btn-dark w-100">Reservar ahora</a>
+                
+                {% if not pista.activa or pista.esta_llena_hoy %}
+                    <button class="btn btn-secondary w-100" disabled>No disponible</button>
+                {% else %}
+                    <a href="{% url 'reservar_pista' pista.id %}" class="btn btn-dark w-100">Reservar ahora</a>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -70,7 +83,8 @@
                                 <td class="text-center">
                                     <span class="badge rounded-pill bg-info text-dark mb-2 d-inline-block">Confirmada</span>
                                     
-                                    <br class="d-md-none"> <form action="{% url 'anular_reserva' r.id %}" method="post" onsubmit="return confirm('¿Seguro que quieres anular esta reserva? Se te devolverá el crédito.');" style="display:inline;">
+                                    <br class="d-md-none"> 
+                                    <form action="{% url 'anular_reserva' r.id %}" method="post" onsubmit="return confirm('¿Seguro que quieres anular esta reserva? Se te devolverá el crédito.');" style="display:inline;">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-outline-danger btn-sm ms-md-2">Anular</button>
                                     </form>

@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from datetime import date
 
 class Usuario(AbstractUser):
     creditos = models.PositiveIntegerField(default=0)
@@ -10,6 +11,16 @@ class Pista(models.Model):
     nombre = models.CharField(max_length=100)
     imagen_url = models.URLField(max_length=500, blank=True, null=True, help_text="Pega aquí el enlace de una foto de una pista de pádel")
     activa = models.BooleanField(default=True)
+
+    # --- NUEVA PROPIEDAD PARA EL REQUISITO 20 ---
+    @property
+    def esta_llena_hoy(self):
+        # Contamos cuántas reservas tiene esta pista para el día actual
+        hoy = date.today()
+       
+        total_reservas_hoy = self.reserva_set.filter(fecha=hoy).count()
+        return total_reservas_hoy >= 6
+
 
     def __str__(self):
         return self.nombre

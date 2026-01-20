@@ -93,6 +93,6 @@ Acceso: Puede entrar en /admin para activar/desactivar pistas y ver todas las re
 2. Usuario Cliente (Reserva y anulación)
 Usuario: alumno
 
-Contraseña: alumno
+Contraseña: 1234
 
 Acceso: Web principal. Permite probar la compra de bonos, reserva de pistas y el historial.

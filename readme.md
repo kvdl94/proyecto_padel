@@ -60,6 +60,7 @@ Con el entorno activo (verás que pone (env) en la terminal), instala la versió
 Bash
 
 pip install django
+
 4. Preparar la Base de Datos
 Como ya tienes el archivo db.sqlite3, solo asegúrate de que las tablas estén al día:
 
@@ -72,6 +73,7 @@ Si el profesor quiere entrar al panel /admin, puede crear su propia cuenta:
 Bash
 
 python manage.py createsuperuser
+
 6. Ejecutar el servidor
 Arranca la aplicación con este comando:
 

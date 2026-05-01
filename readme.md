@@ -31,20 +31,52 @@ Este proyecto es una aplicación web desarrollada con Django para la gestión de
 
 ## 🛠️ Guía de Instalación y Replicabilidad
 
-Sigue estos pasos para configurar el proyecto en tu entorno local (Windows):
+Sigue estos pasos para configurar el proyecto en cualquier entorno local (Windows):
 
 ### 1. Descargar el proyecto
 
-Descarga la carpeta del proyecto desde GitHub y ábrela con VS Code.
+Descarga la carpeta del proyecto desde el repositorio de GitHub y ábrela con Visual Studio Code.
 
 ### 2. Crear y activar el entorno virtual
 
-Es necesario para aislar las dependencias del proyecto:
+Es fundamental para aislar las dependencias y asegurar que el proyecto funcione correctamente:
 
 ```bash
-# Crear entorno
+# Crear entorno virtual
 python -m venv env
 
 # Activar en Windows
 .\env\Scripts\activate
+3. Instalar Dependencias
+Con el entorno activo, instala la versión exacta de Django y las librerías necesarias mediante el archivo de requerimientos:
+
+Bash
+pip install -r requirements.txt
+4. Ejecutar el servidor
+Lanza la aplicación localmente con el siguiente comando:
+
+Bash
+python manage.py runserver
+Una vez iniciado, abre el navegador en: http://127.0.0.1:8000/
+
+👥 Usuarios de Prueba y Acceso Administrativo
+Para facilitar la evaluación y corrección del proyecto, se han configurado los siguientes perfiles:
+
+🔐 Panel de Administración (Gestión Total)
+URL de acceso: http://127.0.0.1:8000/admin
+
+Usuario: alumno
+
+Contraseña: alumno
+
+Uso: Permite gestionar las pistas existentes, administrar usuarios y supervisar todas las reservas del sistema.
+
+👤 Usuario Cliente (Pruebas de Reserva)
+URL de acceso: Página principal / Login
+
+Usuario: alumno1
+
+Contraseña: alumno1
+
+Uso: Permite probar el flujo completo de reserva, la compra de bonos de crédito y consultar el historial de usuario.
 ```

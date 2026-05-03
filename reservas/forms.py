@@ -1,9 +1,11 @@
 from django import forms
-from .models import Usuario, Pista
+
+from .models import Pista, Usuario
+
 
 class RegistroForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput, label="Contraseña")
-    confirmar_password = forms.CharField(widget=forms.PasswordInput, label="Confirmar Contraseña")
+    confirmar_password = forms.CharField(widget=forms.PasswordInput, label="Confirmar contraseña")
 
     class Meta:
         model = Usuario

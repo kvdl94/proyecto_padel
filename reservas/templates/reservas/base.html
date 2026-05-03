@@ -14,7 +14,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow">
         <div class="container">
             <a class="navbar-brand fw-bold" href="{% url 'home' %}">WANDA PADEL</a>
-            
+
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -27,13 +27,13 @@
                         {% endif %}
 
                         <a class="btn btn-warning btn-sm me-3 fw-bold shadow-sm" href="{% url 'comprar_bono' %}">
-                            ¡Comprar Bono!
+                            Comprar bono
                         </a>
-                        
+
                         <span class="nav-link text-info me-3">
                             Saldo: <strong>{{ user.creditos }}</strong> créditos
                         </span>
-                        
+
                         <form action="{% url 'logout' %}" method="post" class="d-inline">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-outline-light btn-sm">Salir</button>

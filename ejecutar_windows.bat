@@ -60,12 +60,9 @@ if errorlevel 1 (
 )
 
 echo.
-echo Abriendo la aplicacion en el navegador...
-start "" "http://127.0.0.1:8000/"
-
-echo.
 echo Servidor iniciado. Para pararlo, pulsa Ctrl + C en esta ventana.
 echo.
+start "" cmd /c "timeout /t 3 /nobreak >nul && start "" http://127.0.0.1:8000/"
 "env\Scripts\python.exe" manage.py runserver
 
 endlocal

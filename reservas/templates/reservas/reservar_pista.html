@@ -8,20 +8,11 @@
                 <h3 class="mb-0">Reservar {{ pista.nombre }}</h3>
             </div>
             <div class="card-body p-4">
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-
                 <p class="text-muted text-center mb-4">Selecciona el horario para tu partida. Cada reserva consume <strong>1 crédito</strong>.</p>
 
                 <form method="post">
                     {% csrf_token %}
-                    
+
                     <div class="mb-4">
                         <label for="fecha" class="form-label fw-bold">Fecha del partido</label>
                         <input type="date" name="fecha" id="fecha" class="form-control form-control-lg" required>
@@ -41,9 +32,7 @@
                     </div>
 
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg shadow-sm">
-                            Confirmar Reserva
-                        </button>
+                        <button type="submit" class="btn btn-primary btn-lg shadow-sm">Confirmar reserva</button>
                         <a href="{% url 'home' %}" class="btn btn-outline-secondary">Cancelar</a>
                     </div>
                 </form>

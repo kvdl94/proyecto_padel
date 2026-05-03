@@ -1,11 +1,17 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from datetime import date
+from functools import wraps
+
+from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from functools import wraps
-from .forms import RegistroForm, PistaForm
-from datetime import date, datetime
-from .models import Usuario, Pista, Reserva
+from django.core.exceptions import ValidationError
+from django.db import IntegrityError, transaction
+from django.db.models import F
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
+
+from .forms import PistaForm, RegistroForm
+from .models import Bono, Pista, Reserva, Usuario
 
 
 def admin_required(view_func):
@@ -18,18 +24,30 @@ def admin_required(view_func):
         return view_func(request, *args, **kwargs)
     return wrapper
 
+
+def leer_entero_post(request, campo, default=0):
+    try:
+        return int(request.POST.get(campo, default))
+    except (TypeError, ValueError):
+        return default
+
+
 def home(request):
     pistas = Pista.objects.filter(activa=True)
-    reservas_usuario = []
-    
+    reservas_proximas = []
+    reservas_historial = []
+
     if request.user.is_authenticated:
-        # Mejora Requisito 22: Ordenamos por fecha Y por bloque horario
         reservas_usuario = Reserva.objects.filter(usuario=request.user).order_by('fecha', 'bloque')
-        
+        reservas_proximas = [reserva for reserva in reservas_usuario if not reserva.ha_pasado]
+        reservas_historial = [reserva for reserva in reservas_usuario if reserva.ha_pasado]
+
     return render(request, 'reservas/home.html', {
         'pistas': pistas,
-        'reservas': reservas_usuario
+        'reservas': reservas_proximas,
+        'reservas_historial': reservas_historial,
     })
+
 
 def registro(request):
     if request.method == 'POST':
@@ -37,82 +55,168 @@ def registro(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            messages.success(request, f"¡Bienvenido {user.username}! Tu cuenta ha sido creada con éxito.") 
+            messages.success(request, f"¡Bienvenido {user.username}! Tu cuenta ha sido creada con éxito.")
             return redirect('home')
     else:
         form = RegistroForm()
     return render(request, 'reservas/registro.html', {'form': form})
 
+
 @login_required
 def comprar_bono(request):
     if request.method == 'POST':
-        cantidad = int(request.POST.get('cantidad', 0))
-        if cantidad > 0:
+        cantidad = leer_entero_post(request, 'cantidad')
+        bonos_disponibles = {
+            5: {"nombre": "Bono Básico", "precio": 5},
+            10: {"nombre": "Bono Pro", "precio": 9},
+            15: {"nombre": "Bono Master", "precio": 12},
+        }
+
+        if cantidad in bonos_disponibles:
             user = request.user
-            user.creditos += cantidad
-            user.save()
+            bono = bonos_disponibles[cantidad]
+            with transaction.atomic():
+                Bono.objects.create(
+                    usuario=user,
+                    nombre=bono["nombre"],
+                    creditos=cantidad,
+                    creditos_restantes=cantidad,
+                    precio=bono["precio"],
+                )
+                Usuario.objects.filter(id=user.id).update(creditos=F('creditos') + cantidad)
             messages.success(request, f"¡Has recargado {cantidad} créditos con éxito!")
             return redirect('home')
-            
+        messages.error(request, "Bono no válido.")
+
     return render(request, 'reservas/comprar_bono.html')
+
+
+def consumir_credito_bono(user):
+    bono = Bono.objects.select_for_update().filter(
+        usuario=user,
+        creditos_restantes__gt=0,
+    ).order_by('fecha_compra').first()
+    if not bono:
+        return None
+
+    bono.creditos_restantes = F('creditos_restantes') - 1
+    bono.save(update_fields=['creditos_restantes'])
+    bono.refresh_from_db()
+    return bono
+
+
+def devolver_credito_bono(reserva):
+    bono = None
+    if reserva.bono_consumido_id:
+        bono = Bono.objects.select_for_update().filter(
+            id=reserva.bono_consumido_id,
+            creditos_restantes__lt=F('creditos'),
+        ).first()
+
+    if bono is None:
+        bono = Bono.objects.select_for_update().filter(
+            usuario=reserva.usuario,
+            creditos_restantes__lt=F('creditos'),
+        ).order_by('-fecha_compra').first()
+
+    if bono:
+        bono.creditos_restantes = F('creditos_restantes') + 1
+        bono.save(update_fields=['creditos_restantes'])
+
+
+def restar_creditos_bonos(user, cantidad):
+    creditos_por_restar = cantidad
+    bonos = Bono.objects.select_for_update().filter(
+        usuario=user,
+        creditos_restantes__gt=0,
+    ).order_by('fecha_compra')
+
+    for bono in bonos:
+        if creditos_por_restar <= 0:
+            break
+        descuento = min(bono.creditos_restantes, creditos_por_restar)
+        bono.creditos_restantes = F('creditos_restantes') - descuento
+        bono.save(update_fields=['creditos_restantes'])
+        creditos_por_restar -= descuento
+
+
+def registrar_ajuste_creditos(user, cantidad):
+    if cantidad > 0:
+        Bono.objects.create(
+            usuario=user,
+            nombre="Ajuste admin",
+            creditos=cantidad,
+            creditos_restantes=cantidad,
+            precio=0,
+        )
+    elif cantidad < 0:
+        restar_creditos_bonos(user, abs(cantidad))
+
+
+def errores_validacion_texto(error):
+    if hasattr(error, 'messages'):
+        return " ".join(error.messages)
+    return str(error)
+
 
 @login_required
 def reservar_pista(request, pista_id):
     pista = get_object_or_404(Pista, id=pista_id)
-    
+
     if request.method == 'POST':
         fecha_str = request.POST.get('fecha')
         bloque = request.POST.get('bloque')
         user = request.user
 
-        # --- MEJORA REQUISITO 24: Validar pasado exacto (Fecha + Hora) ---
-        ahora = datetime.now()
-        # Intentamos combinar la fecha y hora seleccionada para comparar
         try:
-            # Esto asume que el bloque viene como "10:00", "17:30", etc.
-            fecha_seleccionada = datetime.strptime(f"{fecha_str} {bloque}", "%Y-%m-%d %H:%M")
-        except ValueError:
-            # Si el formato falla, usamos una comparación básica de fecha
-            fecha_seleccionada = datetime.combine(date.fromisoformat(fecha_str), ahora.time())
-
-        if fecha_seleccionada < ahora:
-            messages.error(request, "No puedes reservar en un horario que ya ha pasado.")
+            fecha_reserva = date.fromisoformat(fecha_str)
+        except (TypeError, ValueError):
+            messages.error(request, "Selecciona una fecha válida.")
             return redirect('home')
 
-        # --- Requisito 21: Validar saldo ---
         if user.creditos < 1:
             messages.error(request, "No tienes créditos suficientes.")
             return redirect('comprar_bono')
 
-        # --- Requisito 20: Validar disponibilidad ---
-        existe = Reserva.objects.filter(pista=pista, fecha=fecha_str, bloque=bloque).exists()
-        
-        if existe:
+        reserva = Reserva(usuario=user, pista=pista, fecha=fecha_reserva, bloque=bloque)
+        try:
+            reserva.full_clean()
+            with transaction.atomic():
+                bono_consumido = consumir_credito_bono(user)
+                if not bono_consumido:
+                    messages.error(request, "No tienes bonos con créditos disponibles.")
+                    return redirect('comprar_bono')
+                reserva.bono_consumido = bono_consumido
+                reserva.save()
+                Usuario.objects.filter(id=user.id).update(creditos=F('creditos') - 1)
+        except ValidationError as error:
+            messages.error(request, errores_validacion_texto(error))
+        except IntegrityError:
             messages.error(request, "Esta pista ya está ocupada para ese horario.")
         else:
-            # Solo si es futuro y está libre, restamos crédito y guardamos
-            Reserva.objects.create(usuario=user, pista=pista, fecha=fecha_str, bloque=bloque)
-            user.creditos -= 1
-            user.save()
             messages.success(request, f"¡Reserva en {pista.nombre} confirmada!")
             return redirect('home')
 
     return render(request, 'reservas/reservar_pista.html', {'pista': pista})
 
+
 @login_required
+@require_POST
 def anular_reserva(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id, usuario=request.user)
 
-    user = request.user
-    user.creditos += 1
-    user.save()
+    if reserva.ha_pasado:
+        messages.error(request, "No puedes anular una reserva que ya ha pasado.")
+        return redirect('home')
 
-    reserva.delete()
+    with transaction.atomic():
+        Usuario.objects.filter(id=reserva.usuario_id).update(creditos=F('creditos') + 1)
+        devolver_credito_bono(reserva)
+        reserva.delete()
+
     messages.success(request, "Reserva anulada. Se ha devuelto 1 crédito a tu saldo.")
     return redirect('home')
 
-
-# --- PANEL DE ADMINISTRACIÓN ---
 
 @admin_required
 def panel_admin(request):
@@ -121,6 +225,7 @@ def panel_admin(request):
         'total_pistas': Pista.objects.count(),
         'pistas_activas': Pista.objects.filter(activa=True).count(),
         'total_reservas': Reserva.objects.count(),
+        'total_bonos': Bono.objects.count(),
     }
     return render(request, 'reservas/panel_admin.html', context)
 
@@ -159,6 +264,7 @@ def editar_pista(request, pista_id):
 
 
 @admin_required
+@require_POST
 def toggle_pista(request, pista_id):
     pista = get_object_or_404(Pista, id=pista_id)
     pista.activa = not pista.activa
@@ -178,12 +284,24 @@ def gestionar_usuarios(request):
 def ajustar_creditos(request, usuario_id):
     usuario = get_object_or_404(Usuario, id=usuario_id)
     if request.method == 'POST':
-        cantidad = int(request.POST.get('cantidad', 0))
+        cantidad = leer_entero_post(request, 'cantidad')
+        saldo_anterior = usuario.creditos
         usuario.creditos = max(0, usuario.creditos + cantidad)
-        usuario.save()
-        accion = "añadidos" if cantidad >= 0 else "restados"
-        messages.success(request, f"{abs(cantidad)} créditos {accion} a {usuario.username}. Saldo: {usuario.creditos}")
+        ajuste_real = usuario.creditos - saldo_anterior
+
+        with transaction.atomic():
+            registrar_ajuste_creditos(usuario, ajuste_real)
+            usuario.save()
+
+        accion = "añadidos" if ajuste_real >= 0 else "restados"
+        messages.success(request, f"{abs(ajuste_real)} créditos {accion} a {usuario.username}. Saldo: {usuario.creditos}")
     return redirect('gestionar_usuarios')
+
+
+@admin_required
+def gestionar_bonos(request):
+    bonos = Bono.objects.select_related('usuario').order_by('-fecha_compra')
+    return render(request, 'reservas/gestionar_bonos.html', {'bonos': bonos})
 
 
 @admin_required
@@ -193,10 +311,13 @@ def gestionar_reservas(request):
 
 
 @admin_required
+@require_POST
 def eliminar_reserva_admin(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id)
-    reserva.usuario.creditos += 1
-    reserva.usuario.save()
-    reserva.delete()
-    messages.success(request, "Reserva eliminada y crédito devuelto al usuario.")
+    with transaction.atomic():
+        if not reserva.ha_pasado:
+            Usuario.objects.filter(id=reserva.usuario_id).update(creditos=F('creditos') + 1)
+            devolver_credito_bono(reserva)
+        reserva.delete()
+    messages.success(request, "Reserva eliminada correctamente.")
     return redirect('gestionar_reservas')

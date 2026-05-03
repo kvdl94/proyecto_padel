@@ -2,8 +2,8 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 fw-bold">Gestionar Usuarios</h1>
-    <a href="{% url 'panel_admin' %}" class="btn btn-outline-secondary">← Panel admin</a>
+    <h1 class="h3 fw-bold">Gestionar usuarios</h1>
+    <a href="{% url 'panel_admin' %}" class="btn btn-outline-secondary">Volver al panel</a>
 </div>
 
 <div class="card border-0 shadow-sm">
@@ -22,7 +22,7 @@
                 {% for u in usuarios %}
                 <tr>
                     <td class="ps-3 fw-bold">{{ u.username }}</td>
-                    <td class="text-muted small">{{ u.email|default:"—" }}</td>
+                    <td class="text-muted small">{{ u.email|default:"-" }}</td>
                     <td><span class="badge bg-warning text-dark fs-6">{{ u.creditos }}</span></td>
                     <td>
                         {% if u.is_staff %}

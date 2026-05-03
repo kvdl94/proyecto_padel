@@ -1,153 +1,190 @@
-# WANDA Padel Club — Sistema de Reservas
+# WANDA Padel Club - Sistema de reservas
 
-Aplicación web completa desarrollada con **Django 6** para la gestión integral de reservas de pistas de pádel. El sistema cubre desde el registro de usuarios hasta un panel de administración personalizado, incluyendo un sistema de créditos, validaciones automáticas y notificaciones en tiempo real.
-
----
-
-## Índice
-
-1. [Tecnologías](#tecnologías)
-2. [Funcionalidades](#funcionalidades)
-3. [Estructura del proyecto](#estructura-del-proyecto)
-4. [Instalación](#instalación)
-5. [Usuarios de prueba](#usuarios-de-prueba)
-6. [Autores](#autores)
-
----
+Aplicación web desarrollada con Django para gestionar reservas de pistas de pádel. Incluye autenticación, recuperación de contraseña, roles de usuario, compra y consumo de bonos, historial de reservas, validaciones automáticas y panel de administración personalizado.
 
 ## Tecnologías
 
 | Capa | Tecnología |
-|------|-----------|
-| Backend | Python 3.12 · Django 6.0.1 |
-| Base de datos | SQLite3 (incluida con datos de prueba) |
-| Frontend | HTML5 · Bootstrap 5 · Bootstrap Icons |
-| Autenticación | Django Auth (modelo de usuario personalizado) |
-| Email | Django Console Backend (desarrollo) |
+| --- | --- |
+| Backend | Python 3.12, Django 6.0.1 |
+| Base de datos | SQLite3 |
+| Frontend | Django Templates, HTML, Bootstrap 5 |
+| Autenticación | Django Auth con modelo de usuario personalizado |
+| Email | Console Email Backend para desarrollo |
 
----
+## Funcionalidades principales
 
-## Funcionalidades
+- Registro, inicio de sesión, cierre de sesión y recuperación de contraseña.
+- Roles diferenciados con `is_staff`: usuario normal y administrador.
+- Gestión de pistas desde panel propio: crear, editar, activar y desactivar.
+- Sistema de reservas por pista, fecha y franja horaria.
+- Control de disponibilidad con validación de modelo y restricción única en base de datos.
+- Validación para impedir reservas en horarios pasados.
+- Compra de bonos y consumo de créditos al reservar.
+- Devolución de crédito al anular reservas futuras.
+- Historial de compras de bonos con créditos totales, restantes y consumidos.
+- Home con próximas reservas separadas del historial de reservas finalizadas.
+- Panel de administración personalizado para usuarios, bonos, pistas y reservas.
+- Notificaciones en pantalla mediante `django.contrib.messages`.
+- Tests básicos para reservas, créditos y permisos.
 
-El proyecto implementa los 14 requisitos funcionales establecidos:
+## Modelos principales
 
-| # | Funcionalidad |
-|---|--------------|
-| 1 | Aplicación completa desarrollada en Django |
-| 2 | Autenticación: registro, inicio de sesión y **recuperación de contraseña** |
-| 3 | Roles diferenciados: usuario normal y administrador (`is_staff`) |
-| 4 | Gestión de pistas desde la app: crear, editar, activar y desactivar (solo admin) |
-| 5 | Reservas con selección de pista, fecha y franja horaria; cancelación con devolución de crédito |
-| 6 | Control de disponibilidad: bloqueo de reservas duplicadas en la misma franja |
-| 7 | Sistema de bonos y créditos: compra, consumo al reservar y devolución al anular |
-| 8 | Historial de reservas ordenado por fecha y horario, accesible desde la home |
-| 9 | Panel de administración personalizado: gestión de usuarios, créditos, pistas y reservas |
-| 10 | Validación automática: no se permiten reservas en fechas u horas pasadas |
-| 11 | Notificaciones en pantalla (éxito/error) mediante `django.contrib.messages` |
-| 12 | Interfaz responsive con Django Templates y Bootstrap 5 |
-| 13 | Modelos de base de datos: `Usuario`, `Pista` y `Reserva` con migraciones |
-| 14 | Documentación completa: instalación, migraciones, usuarios de prueba y `requirements.txt` |
+- `Usuario`: usuario personalizado basado en `AbstractUser`, con saldo de `creditos`.
+- `Bono`: registra compras o ajustes de créditos, con `creditos`, `creditos_restantes`, `precio` y `fecha_compra`.
+- `Pista`: pista de pádel con nombre, imagen opcional y estado activo/inactivo.
+- `Reserva`: reserva asociada a usuario, pista, fecha y bloque horario.
 
----
+## Estructura
 
-## Estructura del proyecto
-
-```
+```text
 proyecto_padel/
-├── core/                   # Configuración del proyecto Django
-│   ├── settings.py         # Ajustes globales (BD, auth, email, zona horaria)
-│   └── urls.py             # Enrutamiento principal
-├── reservas/               # Aplicación principal
-│   ├── models.py           # Modelos: Usuario, Pista, Reserva
-│   ├── views.py            # Lógica de negocio y vistas
-│   ├── forms.py            # Formularios: RegistroForm, PistaForm
-│   ├── admin.py            # Registro en el panel Django Admin
-│   ├── migrations/         # Historial de migraciones de la BD
-│   └── templates/reservas/ # Plantillas HTML
-├── db.sqlite3              # Base de datos con datos de prueba
-├── requirements.txt        # Dependencias del proyecto
+├── core/
+│   ├── README.md
+│   ├── settings.py
+│   └── urls.py
+├── reservas/
+│   ├── README.md
+│   ├── admin.py
+│   ├── forms.py
+│   ├── models.py
+│   ├── tests.py
+│   ├── views.py
+│   ├── migrations/
+│   │   └── README.md
+│   └── templates/
+│       ├── README.md
+│       └── reservas/
+├── db.sqlite3
+├── ejecutar_linux.sh
+├── ejecutar_windows.bat
+├── manage.py
+├── requirements.txt
 └── README.md
 ```
 
----
+## Ejecución automática
 
-## Instalación
+### Windows
 
-### Requisitos previos
+Ejecuta:
 
-- Python 3.10 o superior
-- Git
-
-### Pasos
-
-**1. Clonar el repositorio**
-
-```bash
-git clone <url-del-repositorio>
-cd proyecto_padel
+```bat
+ejecutar_windows.bat
 ```
 
-**2. Crear y activar el entorno virtual**
+El script crea el entorno virtual si no existe, instala dependencias, aplica migraciones y arranca el servidor.
+
+### Linux
+
+La primera vez:
 
 ```bash
-# Crear entorno virtual
+chmod +x ejecutar_linux.sh
+```
+
+Después:
+
+```bash
+./ejecutar_linux.sh
+```
+
+## Ejecución manual
+
+```bash
 python -m venv env
+```
 
-# Activar en Windows
+En Windows:
+
+```bash
 .\env\Scripts\activate
+```
 
-# Activar en macOS / Linux
+En Linux/macOS:
+
+```bash
 source env/bin/activate
 ```
 
-**3. Instalar dependencias**
+Instalar dependencias:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-**4. Aplicar migraciones**
+Aplicar migraciones:
 
 ```bash
 python manage.py migrate
 ```
 
-> La base de datos `db.sqlite3` ya está incluida con datos de prueba. Este paso solo es necesario si se parte de cero.
-
-**5. Iniciar el servidor de desarrollo**
+Arrancar servidor:
 
 ```bash
 python manage.py runserver
 ```
 
-Abrir en el navegador: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+Abrir:
 
----
+```text
+http://127.0.0.1:8000/
+```
 
 ## Usuarios de prueba
-
-La base de datos incluida contiene los siguientes perfiles listos para usar:
 
 ### Administrador
 
 | Campo | Valor |
-|-------|-------|
-| URL | http://127.0.0.1:8000/panel-admin/ |
+| --- | --- |
 | Usuario | `alumno` |
 | Contraseña | `alumno` |
-| Permisos | Acceso total: gestión de pistas, usuarios, créditos y reservas |
+| Panel personalizado | `http://127.0.0.1:8000/panel-admin/` |
+| Admin Django | `http://127.0.0.1:8000/admin/` |
 
-### Usuario estándar
+### Usuario normal
 
 | Campo | Valor |
-|-------|-------|
-| URL | http://127.0.0.1:8000 |
+| --- | --- |
 | Usuario | `alumno1` |
 | Contraseña | `alumno1` |
-| Permisos | Reservar pistas, comprar bonos, consultar historial |
+| URL | `http://127.0.0.1:8000/` |
 
----
+## Recuperación de contraseña
+
+La recuperación de contraseña está configurada para desarrollo con:
+
+```python
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+```
+
+Esto significa que Django no envía un email real. El enlace de recuperación aparece en la terminal donde se está ejecutando `python manage.py runserver`.
+
+Flujo de prueba:
+
+1. Entrar en `http://127.0.0.1:8000/login/`.
+2. Pulsar el enlace de recuperación de contraseña.
+3. Introducir el email de un usuario registrado.
+4. Copiar desde la terminal el enlace generado.
+5. Abrirlo en el navegador y cambiar la contraseña.
+
+## Tests
+
+Ejecutar:
+
+```bash
+python manage.py test
+```
+
+Los tests cubren:
+
+- Reserva duplicada.
+- Reserva en el pasado.
+- Consumo de crédito al reservar.
+- Devolución de crédito al anular.
+- Bloqueo del panel admin para usuarios normales.
+- Acceso al panel admin para usuarios `is_staff`.
 
 ## Autores
 
-Proyecto desarrollado por **Kevin, David, Perdices y Rodrigo** como parte de un trabajo de desarrollo web con Django.
+Proyecto desarrollado por Kevin, David, Perdices y Rodrigo.

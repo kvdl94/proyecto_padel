@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="text-center mb-5">
-    <h1 class="display-4 fw-bold">Tienda de Créditos WANDA</h1>
+    <h1 class="display-4 fw-bold">Tienda de créditos WANDA</h1>
     <p class="lead text-muted">Elige el bono que mejor se adapte a tus partidos y ahorra en cada reserva.</p>
 </div>
 
@@ -12,13 +12,13 @@
             <div class="card-body p-4 d-flex flex-column">
                 <h3 class="fw-bold h4">Bono Básico</h3>
                 <hr class="mx-auto w-25">
-                <div class="display-5 my-3 fw-bold">5€</div>
-                <p class="text-muted mb-4">5 Créditos de reserva<br>(1€ / crédito)</p>
-                
+                <div class="display-5 my-3 fw-bold">5 €</div>
+                <p class="text-muted mb-4">5 créditos de reserva<br>(1 € / crédito)</p>
+
                 <form method="post" class="mt-auto">
                     {% csrf_token %}
                     <input type="hidden" name="cantidad" value="5">
-                    <button type="submit" class="btn btn-outline-dark w-100 py-2">Comprar Bono</button>
+                    <button type="submit" class="btn btn-outline-dark w-100 py-2">Comprar bono</button>
                 </form>
             </div>
         </div>
@@ -27,20 +27,20 @@
     <div class="col-md-4 mb-4">
         <div class="card shadow border-primary h-100 text-center rounded-3 position-relative" style="border-width: 2px !important;">
             <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-danger px-3 py-2 shadow">
-                ¡AHORRA 10%!
+                Ahorra 10%
             </span>
-            
+
             <div class="card-body p-4 d-flex flex-column">
                 <h3 class="fw-bold h4 text-primary">Bono Pro</h3>
                 <hr class="mx-auto w-25">
-                <div class="display-5 my-2 fw-bold text-primary">9€</div>
-                <p class="text-muted text-decoration-line-through small mb-1">Antes 10€</p>
-                <p class="text-muted mb-4">10 Créditos de reserva<br>(0.90€ / crédito)</p>
-                
+                <div class="display-5 my-2 fw-bold text-primary">9 €</div>
+                <p class="text-muted text-decoration-line-through small mb-1">Antes 10 €</p>
+                <p class="text-muted mb-4">10 créditos de reserva<br>(0.90 € / crédito)</p>
+
                 <form method="post" class="mt-auto">
                     {% csrf_token %}
                     <input type="hidden" name="cantidad" value="10">
-                    <button type="submit" class="btn btn-primary btn-lg w-100 shadow py-2">Comprar Bono</button>
+                    <button type="submit" class="btn btn-primary btn-lg w-100 shadow py-2">Comprar bono</button>
                 </form>
             </div>
         </div>
@@ -51,14 +51,14 @@
             <div class="card-body p-4 d-flex flex-column">
                 <h3 class="fw-bold h4">Bono Master</h3>
                 <hr class="mx-auto w-25">
-                <div class="display-5 my-2 fw-bold">12€</div>
-                <p class="text-muted text-decoration-line-through small mb-1">Antes 15€</p>
-                <p class="text-muted mb-4">15 Créditos de reserva<br>(0.80€ / crédito)</p>
-                
+                <div class="display-5 my-2 fw-bold">12 €</div>
+                <p class="text-muted text-decoration-line-through small mb-1">Antes 15 €</p>
+                <p class="text-muted mb-4">15 créditos de reserva<br>(0.80 € / crédito)</p>
+
                 <form method="post" class="mt-auto">
                     {% csrf_token %}
                     <input type="hidden" name="cantidad" value="15">
-                    <button type="submit" class="btn btn-outline-dark w-100 py-2">Comprar Bono</button>
+                    <button type="submit" class="btn btn-outline-dark w-100 py-2">Comprar bono</button>
                 </form>
             </div>
         </div>
@@ -67,8 +67,7 @@
 
 <div class="text-center mt-4">
     <a href="{% url 'home' %}" class="btn btn-link text-muted text-decoration-none">
-        <i class="bi bi-arrow-left"></i> Volver al inicio sin comprar
+        Volver al inicio sin comprar
     </a>
 </div>
-
 {% endblock %}

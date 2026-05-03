@@ -39,14 +39,11 @@ echo "Aplicando migraciones..."
 "env/bin/python" manage.py migrate
 
 echo
-echo "Abriendo la aplicacion en el navegador..."
+echo "Servidor iniciado. Para pararlo, pulsa Ctrl + C en esta ventana."
+echo
 if command -v xdg-open >/dev/null 2>&1; then
-    xdg-open "http://127.0.0.1:8000/" >/dev/null 2>&1 &
+    (sleep 3 && xdg-open "http://127.0.0.1:8000/" >/dev/null 2>&1) &
 else
     echo "Abre manualmente: http://127.0.0.1:8000/"
 fi
-
-echo
-echo "Servidor iniciado. Para pararlo, pulsa Ctrl + C en esta ventana."
-echo
 "env/bin/python" manage.py runserver

@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 fw-bold">Panel de Administración</h1>
+    <h1 class="h3 fw-bold">Panel de administración</h1>
 </div>
 
 <div class="row g-4 mb-5">
@@ -20,42 +20,51 @@
     </div>
     <div class="col-md-3">
         <div class="card border-0 shadow-sm text-center p-3">
-            <div class="display-5 fw-bold text-dark">{{ total_pistas }}</div>
-            <div class="text-muted">Pistas totales</div>
+            <div class="display-5 fw-bold text-warning">{{ total_reservas }}</div>
+            <div class="text-muted">Reservas totales</div>
         </div>
     </div>
     <div class="col-md-3">
         <div class="card border-0 shadow-sm text-center p-3">
-            <div class="display-5 fw-bold text-warning">{{ total_reservas }}</div>
-            <div class="text-muted">Reservas totales</div>
+            <div class="display-5 fw-bold text-dark">{{ total_bonos }}</div>
+            <div class="text-muted">Bonos registrados</div>
         </div>
     </div>
 </div>
 
 <div class="row g-4">
-    <div class="col-md-4">
+    <div class="col-md-3">
         <a href="{% url 'gestionar_pistas' %}" class="text-decoration-none">
             <div class="card border-0 shadow-sm h-100 p-4 text-center">
-                <div class="fs-1 mb-2">🎾</div>
-                <h5 class="fw-bold">Gestionar Pistas</h5>
+                <div class="fs-1 fw-bold mb-2">P</div>
+                <h5 class="fw-bold">Gestionar pistas</h5>
                 <p class="text-muted small">Crear, editar, activar o desactivar pistas.</p>
             </div>
         </a>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
         <a href="{% url 'gestionar_usuarios' %}" class="text-decoration-none">
             <div class="card border-0 shadow-sm h-100 p-4 text-center">
-                <div class="fs-1 mb-2">👥</div>
-                <h5 class="fw-bold">Gestionar Usuarios</h5>
+                <div class="fs-1 fw-bold mb-2">U</div>
+                <h5 class="fw-bold">Gestionar usuarios</h5>
                 <p class="text-muted small">Ver usuarios y ajustar sus créditos.</p>
             </div>
         </a>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
+        <a href="{% url 'gestionar_bonos' %}" class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 p-4 text-center">
+                <div class="fs-1 fw-bold mb-2">B</div>
+                <h5 class="fw-bold">Gestionar bonos</h5>
+                <p class="text-muted small">Ver compras, ajustes y créditos restantes.</p>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3">
         <a href="{% url 'gestionar_reservas' %}" class="text-decoration-none">
             <div class="card border-0 shadow-sm h-100 p-4 text-center">
-                <div class="fs-1 mb-2">📋</div>
-                <h5 class="fw-bold">Gestionar Reservas</h5>
+                <div class="fs-1 fw-bold mb-2">R</div>
+                <h5 class="fw-bold">Gestionar reservas</h5>
                 <p class="text-muted small">Ver y eliminar cualquier reserva.</p>
             </div>
         </a>

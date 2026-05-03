@@ -53,6 +53,7 @@ urlpatterns = [
     path('panel-admin/pistas/<int:pista_id>/toggle/', views.toggle_pista, name='toggle_pista'),
     path('panel-admin/usuarios/', views.gestionar_usuarios, name='gestionar_usuarios'),
     path('panel-admin/usuarios/<int:usuario_id>/creditos/', views.ajustar_creditos, name='ajustar_creditos'),
+    path('panel-admin/bonos/', views.gestionar_bonos, name='gestionar_bonos'),
     path('panel-admin/reservas/', views.gestionar_reservas, name='gestionar_reservas'),
     path('panel-admin/reservas/<int:reserva_id>/eliminar/', views.eliminar_reserva_admin, name='eliminar_reserva_admin'),
 ]

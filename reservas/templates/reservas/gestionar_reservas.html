@@ -2,8 +2,8 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 fw-bold">Gestionar Reservas</h1>
-    <a href="{% url 'panel_admin' %}" class="btn btn-outline-secondary">← Panel admin</a>
+    <h1 class="h3 fw-bold">Gestionar reservas</h1>
+    <a href="{% url 'panel_admin' %}" class="btn btn-outline-secondary">Volver al panel</a>
 </div>
 
 <div class="card border-0 shadow-sm">
@@ -15,6 +15,7 @@
                     <th>Pista</th>
                     <th>Fecha</th>
                     <th>Horario</th>
+                    <th>Estado</th>
                     <th class="text-center">Acciones</th>
                 </tr>
             </thead>
@@ -25,9 +26,16 @@
                     <td>{{ r.pista.nombre }}</td>
                     <td>{{ r.fecha|date:"d/m/Y" }}</td>
                     <td>{{ r.bloque }}</td>
+                    <td>
+                        {% if r.ha_pasado %}
+                            <span class="badge bg-secondary">Finalizada</span>
+                        {% else %}
+                            <span class="badge bg-success">Activa</span>
+                        {% endif %}
+                    </td>
                     <td class="text-center">
                         <form action="{% url 'eliminar_reserva_admin' r.id %}" method="post"
-                              onsubmit="return confirm('¿Eliminar esta reserva? Se devolverá el crédito al usuario.');">
+                              onsubmit="return confirm('¿Eliminar esta reserva? Solo se devolverá crédito si todavía no ha pasado.');">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-outline-danger btn-sm">Eliminar</button>
                         </form>
@@ -35,7 +43,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="5" class="text-center text-muted py-4">No hay reservas registradas.</td>
+                    <td colspan="6" class="text-center text-muted py-4">No hay reservas registradas.</td>
                 </tr>
                 {% endfor %}
             </tbody>

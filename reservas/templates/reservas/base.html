@@ -22,6 +22,10 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <div class="navbar-nav ms-auto align-items-center">
                     {% if user.is_authenticated %}
+                        {% if user.is_staff %}
+                            <a class="nav-link text-warning me-2 fw-bold" href="{% url 'panel_admin' %}">Panel Admin</a>
+                        {% endif %}
+
                         <a class="btn btn-warning btn-sm me-3 fw-bold shadow-sm" href="{% url 'comprar_bono' %}">
                             ¡Comprar Bono!
                         </a>

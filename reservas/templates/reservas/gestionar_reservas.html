@@ -1,0 +1,45 @@
+{% extends 'reservas/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 fw-bold">Gestionar Reservas</h1>
+    <a href="{% url 'panel_admin' %}" class="btn btn-outline-secondary">← Panel admin</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th class="ps-3">Usuario</th>
+                    <th>Pista</th>
+                    <th>Fecha</th>
+                    <th>Horario</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in reservas %}
+                <tr>
+                    <td class="ps-3 fw-bold">{{ r.usuario.username }}</td>
+                    <td>{{ r.pista.nombre }}</td>
+                    <td>{{ r.fecha|date:"d/m/Y" }}</td>
+                    <td>{{ r.bloque }}</td>
+                    <td class="text-center">
+                        <form action="{% url 'eliminar_reserva_admin' r.id %}" method="post"
+                              onsubmit="return confirm('¿Eliminar esta reserva? Se devolverá el crédito al usuario.');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-4">No hay reservas registradas.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

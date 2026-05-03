@@ -1,5 +1,5 @@
 from django import forms
-from .models import Usuario
+from .models import Usuario, Pista
 
 class RegistroForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput, label="Contraseña")
@@ -21,3 +21,18 @@ class RegistroForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+
+
+class PistaForm(forms.ModelForm):
+    class Meta:
+        model = Pista
+        fields = ['nombre', 'imagen_url', 'activa']
+        labels = {
+            'nombre': 'Nombre de la pista',
+            'imagen_url': 'URL de la imagen (opcional)',
+            'activa': 'Pista activa',
+        }
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'imagen_url': forms.URLInput(attrs={'class': 'form-control'}),
+        }

@@ -119,3 +119,6 @@ STATIC_URL = 'static/'
 AUTH_USER_MODEL = 'reservas.Usuario'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@wandapadel.com'

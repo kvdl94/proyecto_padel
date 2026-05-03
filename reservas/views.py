@@ -2,9 +2,21 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import RegistroForm
-from datetime import date, datetime  # Añadida datetime para la precisión horaria
+from functools import wraps
+from .forms import RegistroForm, PistaForm
+from datetime import date, datetime
 from .models import Usuario, Pista, Reserva
+
+
+def admin_required(view_func):
+    @wraps(view_func)
+    @login_required
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_staff:
+            messages.error(request, "No tienes permisos de administrador.")
+            return redirect('home')
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
 def home(request):
     pistas = Pista.objects.filter(activa=True)
@@ -90,11 +102,101 @@ def reservar_pista(request, pista_id):
 @login_required
 def anular_reserva(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id, usuario=request.user)
-    
+
     user = request.user
     user.creditos += 1
     user.save()
-    
+
     reserva.delete()
     messages.success(request, "Reserva anulada. Se ha devuelto 1 crédito a tu saldo.")
     return redirect('home')
+
+
+# --- PANEL DE ADMINISTRACIÓN ---
+
+@admin_required
+def panel_admin(request):
+    context = {
+        'total_usuarios': Usuario.objects.count(),
+        'total_pistas': Pista.objects.count(),
+        'pistas_activas': Pista.objects.filter(activa=True).count(),
+        'total_reservas': Reserva.objects.count(),
+    }
+    return render(request, 'reservas/panel_admin.html', context)
+
+
+@admin_required
+def gestionar_pistas(request):
+    pistas = Pista.objects.all().order_by('nombre')
+    return render(request, 'reservas/gestionar_pistas.html', {'pistas': pistas})
+
+
+@admin_required
+def crear_pista(request):
+    if request.method == 'POST':
+        form = PistaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Pista creada correctamente.")
+            return redirect('gestionar_pistas')
+    else:
+        form = PistaForm()
+    return render(request, 'reservas/form_pista.html', {'form': form, 'titulo': 'Crear pista'})
+
+
+@admin_required
+def editar_pista(request, pista_id):
+    pista = get_object_or_404(Pista, id=pista_id)
+    if request.method == 'POST':
+        form = PistaForm(request.POST, instance=pista)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Pista '{pista.nombre}' actualizada.")
+            return redirect('gestionar_pistas')
+    else:
+        form = PistaForm(instance=pista)
+    return render(request, 'reservas/form_pista.html', {'form': form, 'titulo': f'Editar: {pista.nombre}'})
+
+
+@admin_required
+def toggle_pista(request, pista_id):
+    pista = get_object_or_404(Pista, id=pista_id)
+    pista.activa = not pista.activa
+    pista.save()
+    estado = "activada" if pista.activa else "desactivada"
+    messages.success(request, f"Pista '{pista.nombre}' {estado}.")
+    return redirect('gestionar_pistas')
+
+
+@admin_required
+def gestionar_usuarios(request):
+    usuarios = Usuario.objects.all().order_by('username')
+    return render(request, 'reservas/gestionar_usuarios.html', {'usuarios': usuarios})
+
+
+@admin_required
+def ajustar_creditos(request, usuario_id):
+    usuario = get_object_or_404(Usuario, id=usuario_id)
+    if request.method == 'POST':
+        cantidad = int(request.POST.get('cantidad', 0))
+        usuario.creditos = max(0, usuario.creditos + cantidad)
+        usuario.save()
+        accion = "añadidos" if cantidad >= 0 else "restados"
+        messages.success(request, f"{abs(cantidad)} créditos {accion} a {usuario.username}. Saldo: {usuario.creditos}")
+    return redirect('gestionar_usuarios')
+
+
+@admin_required
+def gestionar_reservas(request):
+    reservas = Reserva.objects.select_related('usuario', 'pista').order_by('-fecha', 'bloque')
+    return render(request, 'reservas/gestionar_reservas.html', {'reservas': reservas})
+
+
+@admin_required
+def eliminar_reserva_admin(request, reserva_id):
+    reserva = get_object_or_404(Reserva, id=reserva_id)
+    reserva.usuario.creditos += 1
+    reserva.usuario.save()
+    reserva.delete()
+    messages.success(request, "Reserva eliminada y crédito devuelto al usuario.")
+    return redirect('gestionar_reservas')

@@ -27,7 +27,11 @@
                     <td>{{ bono.nombre }}</td>
                     <td class="text-center">{{ bono.creditos }}</td>
                     <td class="text-center">
-                        <span class="badge bg-success">{{ bono.creditos_restantes }}</span>
+                        {% if bono.creditos_restantes > 0 %}
+                            <span class="badge bg-success">{{ bono.creditos_restantes }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ bono.creditos_restantes }}</span>
+                        {% endif %}
                     </td>
                     <td class="text-center">{{ bono.creditos_consumidos }}</td>
                     <td class="text-end">{{ bono.precio }} €</td>

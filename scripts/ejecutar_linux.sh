@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."
 
 echo "========================================"
 echo " WANDA Padel Club - Arranque automatico"
@@ -9,7 +9,7 @@ echo "========================================"
 echo
 
 if [ ! -f "manage.py" ]; then
-    echo "ERROR: Este script debe estar en la misma carpeta que manage.py."
+    echo "ERROR: No se ha encontrado manage.py en la carpeta raiz del proyecto."
     exit 1
 fi
 

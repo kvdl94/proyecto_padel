@@ -55,9 +55,10 @@ proyecto_padel/
 │   └── templates/
 │       ├── README.md
 │       └── reservas/
+├── scripts/
+│   ├── ejecutar_linux.sh
+│   └── ejecutar_windows.bat
 ├── db.sqlite3
-├── ejecutar_linux.sh
-├── ejecutar_windows.bat
 ├── manage.py
 ├── requirements.txt
 └── README.md
@@ -70,7 +71,7 @@ proyecto_padel/
 Ejecuta:
 
 ```bat
-ejecutar_windows.bat
+scripts\ejecutar_windows.bat
 ```
 
 El script crea el entorno virtual si no existe, instala dependencias, aplica migraciones y arranca el servidor.
@@ -80,13 +81,13 @@ El script crea el entorno virtual si no existe, instala dependencias, aplica mig
 La primera vez:
 
 ```bash
-chmod +x ejecutar_linux.sh
+chmod +x scripts/ejecutar_linux.sh
 ```
 
 Después:
 
 ```bash
-./ejecutar_linux.sh
+./scripts/ejecutar_linux.sh
 ```
 
 ## Ejecución manual

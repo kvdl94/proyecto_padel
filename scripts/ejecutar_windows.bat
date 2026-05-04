@@ -1,7 +1,7 @@
 @echo off
 setlocal
 
-cd /d "%~dp0"
+cd /d "%~dp0.."
 
 echo ========================================
 echo  WANDA Padel Club - Arranque automatico
@@ -9,7 +9,7 @@ echo ========================================
 echo.
 
 if not exist "manage.py" (
-    echo ERROR: Este script debe estar en la misma carpeta que manage.py.
+    echo ERROR: No se ha encontrado manage.py en la carpeta raiz del proyecto.
     pause
     exit /b 1
 )

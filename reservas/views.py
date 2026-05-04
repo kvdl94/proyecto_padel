@@ -285,13 +285,14 @@ def ajustar_creditos(request, usuario_id):
     usuario = get_object_or_404(Usuario, id=usuario_id)
     if request.method == 'POST':
         cantidad = leer_entero_post(request, 'cantidad')
-        saldo_anterior = usuario.creditos
-        usuario.creditos = max(0, usuario.creditos + cantidad)
-        ajuste_real = usuario.creditos - saldo_anterior
 
         with transaction.atomic():
+            usuario = Usuario.objects.select_for_update().get(id=usuario_id)
+            saldo_anterior = usuario.creditos
+            usuario.creditos = max(0, usuario.creditos + cantidad)
+            ajuste_real = usuario.creditos - saldo_anterior
             registrar_ajuste_creditos(usuario, ajuste_real)
-            usuario.save()
+            usuario.save(update_fields=['creditos'])
 
         accion = "añadidos" if ajuste_real >= 0 else "restados"
         messages.success(request, f"{abs(ajuste_real)} créditos {accion} a {usuario.username}. Saldo: {usuario.creditos}")

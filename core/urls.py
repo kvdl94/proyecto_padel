@@ -24,7 +24,7 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('registro/', views.registro, name='registro'),
     path('login/', auth_views.LoginView.as_view(template_name='reservas/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 
     # Recuperación de contraseña
     path('password-reset/', auth_views.PasswordResetView.as_view(
